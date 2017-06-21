@@ -18,8 +18,8 @@ app.get("/", function(req, res) {
   res.render("index", {});
 });
 
-app.post("/", function(req, res) {
-  res.render("index", req.body);
+app.post("/signup", function(req, res) {
+  res.render("user", req.body);
 });
 
 app.listen(3000, function(){
