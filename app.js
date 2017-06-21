@@ -1,27 +1,44 @@
-const express = require('express');
-const mustacheExpress = require('mustache-express');
-const bodyParser = require('body-parser');
-const app = express();
+(function(){
+  'use strict';
 
-// register the mustache template engine
-app.engine('mustache', mustacheExpress());
-// set mustache as the engine to use for our views
-app.set('view engine', 'mustache');
-// tell express where the view files are located
-app.set('views', './views');
+  const express = require('express');
+  const mustacheExpress = require('mustache-express');
+  const bodyParser = require('body-parser');
+  const expressValidator = require('express-validator');
+  const app = express();
 
-// set app to use bodyParser() middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+  // register the mustache template engine
+  app.engine('mustache', mustacheExpress());
+  // set mustache as the engine to use for our views
+  app.set('view engine', 'mustache');
+  // tell express where the view files are located
+  app.set('views', './views');
 
-app.get("/", function(req, res) {
-  res.render("index", {});
-});
+  // set app to use middleware
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(expressValidator());
 
-app.post("/signup", function(req, res) {
-  res.render("user", req.body);
-});
+  app.get('/', function(req, res) {
+    let context = {};
+    res.render('index', context);
+  });
 
-app.listen(3000, function(){
-  console.log('sucessfully started express application')
-});
+  app.post('/signup', function(req, res) {
+    req.checkBody('first_name', 'first name is missing').notEmpty();
+    // errors is either false or an array
+    let errors = req.validationErrors();
+    let context = {};
+    if(errors) {
+      context['errors'] = errors;
+      res.render('index', context);
+    } else {
+      context = req.body;
+      res.render('user', context);
+    }
+  });
+
+  app.listen(3000, function(){
+    console.log('sucessfully started express application')
+  });
+})();
